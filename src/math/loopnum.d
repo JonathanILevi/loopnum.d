@@ -59,3 +59,93 @@ if (min<max || isIntegral!T && isSigned!T && max==T.min)
 	}
 }
 
+
+unittest {
+	import std.meta;
+	{
+		foreach(T; AliasSeq!(int, uint, float)) {
+			alias L = LoopNum!(T,100);
+			assert(L(5) + 5 == L(10));
+			assert(L(50) + 50 == L(0));
+			assert(L(50) + 51 == L(1));
+			assert(L(51) + 50 == L(1));
+			assert(L(51) - 50 == L(1));
+			assert(L(50) - 51 == L(99));
+			assert(L(51) + 150 == L(1));
+			assert(L(51) - 150 == L(1));
+		}
+		foreach(T; AliasSeq!(int, float)) {
+			alias L = LoopNum!(T,100);
+			assert(L(5) - (-5) == L(10));
+			assert(L(50) - (-50) == L(0));
+			assert(L(50) - (-51) == L(1));
+			assert(L(51) - (-50) == L(1));
+			assert(L(51) + (-50) == L(1));
+			assert(L(50) + (-51) == L(99));
+			assert(L(51) - (-150) == L(1));
+			assert(L(51) + (-150) == L(1));
+		}
+	}
+	{
+		foreach(T; AliasSeq!(int, uint, float)) {
+			alias L = LoopNum!(T,10,100);
+			assert(L(15) + 5 == L(20));
+			assert(L(50) + 50 == L(10));
+			assert(L(50) + 51 == L(11));
+			assert(L(51) + 50 == L(11));
+			assert(L(51) - 40 == L(11));
+			assert(L(50) - 41 == L(99));
+			assert(L(51) + 140 == L(11));
+			assert(L(51) - 130 == L(11));
+		}
+		foreach(T; AliasSeq!(int, float)) {
+			alias L = LoopNum!(T,10,100);
+			assert(L(15) - (-5) == L(20));
+			assert(L(50) - (-50) == L(10));
+			assert(L(50) - (-51) == L(11));
+			assert(L(51) - (-50) == L(11));
+			assert(L(51) + (-40) == L(11));
+			assert(L(50) + (-41) == L(99));
+			assert(L(51) - (-140) == L(11));
+			assert(L(51) + (-130) == L(11));
+		}
+	}
+	{
+		foreach(T; AliasSeq!(int, float)) {
+			alias L = LoopNum!(T,-10,100);
+			assert(L(-5) + 5 == L(0));
+			assert(L(50) + 50 == L(-10));
+			assert(L(50) + 51 == L(-9));
+			assert(L(51) + 50 == L(-9));
+			assert(L(51) - 60 == L(-9));
+			assert(L(50) - 61 == L(99));
+			assert(L(51) + 160 == L(-9));
+			assert(L(51) - 170 == L(-9));
+			
+			assert(L(-5) - (-5) == L(0));
+			assert(L(50) - (-50) == L(-10));
+			assert(L(50) - (-51) == L(-9));
+			assert(L(51) - (-50) == L(-9));
+			assert(L(51) + (-60) == L(-9));
+			assert(L(50) + (-61) == L(99));
+			assert(L(51) - (-160) == L(-9));
+			assert(L(51) + (-170) == L(-9));
+		}
+	}
+	{
+		foreach(T; AliasSeq!(int)) {
+			alias L = LoopNum!(T, T.min+1, T.max+1);
+			assert(L(5) + 1 == L(6));
+			assert(L(T.max).num == T.max);
+			assert(L(T.min) == L(T.max));
+			assert(L(T.min+1) - 1 == L(T.max));
+			assert(L(T.max) + 1 == L(T.min+1));
+			assert(L(T.min+1) + T.max == L(0));
+			assert(L(T.max) - T.max == L(0));
+			assert(L(T.min+1) - T.max == L(1));
+			assert(L(T.max) + T.max == L(-1));
+			assert(L(T.min/2) - T.min/2 == L(0));
+		}
+	}
+}
+
